@@ -1,0 +1,4 @@
+h3==4.4.1
+geojson==3.2.0
+pydantic==2.12.5
+mcp[cli]==1.26.0

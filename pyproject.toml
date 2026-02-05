@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "h3-mcp"
+version = "0.1.0"
+description = "H3 MCP server for spatial primitives"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "h3==4.4.1",
+  "geojson==3.2.0",
+  "pydantic==2.12.5",
+  "mcp[cli]==1.26.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+extend-ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
