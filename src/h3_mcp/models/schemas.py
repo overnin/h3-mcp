@@ -76,9 +76,9 @@ class ListOutputControls(StrictModel):
 
 
 class GeojsonOutputControls(StrictModel):
-    return_mode: Literal["summary", "geojson"] = Field(
+    return_mode: Literal["summary", "geojson", "cells"] = Field(
         default="geojson",
-        description="Return GeoJSON or summary only.",
+        description="Return GeoJSON, summary only, or raw cell IDs.",
     )
     max_features: int | None = Field(
         default=None,
@@ -214,6 +214,11 @@ class H3CompareManyOutput(StrictModel):
     summary: str
 
 
+class LatLng(StrictModel):
+    lat: float
+    lng: float
+
+
 class H3CellsToGeojsonInput(GeojsonOutputControls):
     cellset: CellsetRef
     properties: dict[str, Any] | None = None
@@ -224,12 +229,11 @@ class H3CellsToGeojsonOutput(StrictModel):
     feature_count: int
     type: Literal["FeatureCollection"] = "FeatureCollection"
     features: list[dict[str, Any]] | None = None
+    cells: list[str] | None = None
+    center: LatLng | None = None
+    bounding_box: BoundingBox | None = None
+    total_area_km2: float | None = None
     summary: str
-
-
-class LatLng(StrictModel):
-    lat: float
-    lng: float
 
 
 class H3CellStatsInput(StrictModel):
@@ -244,6 +248,29 @@ class H3CellStatsOutput(StrictModel):
     bounding_box: BoundingBox
     center: LatLng
     is_contiguous: bool
+    summary: str
+
+
+class H3ConnectedComponentsInput(StrictModel):
+    cellset: CellsetRef
+    min_cells: int = Field(
+        default=1, ge=1, description="Minimum cells for a component to be included."
+    )
+
+
+class ConnectedComponent(StrictModel):
+    component_id: int
+    cell_count: int
+    center: LatLng
+    bounding_box: BoundingBox
+    total_area_km2: float
+    cellset_id: str
+
+
+class H3ConnectedComponentsOutput(StrictModel):
+    total_cells: int
+    component_count: int
+    components: list[ConnectedComponent]
     summary: str
 
 

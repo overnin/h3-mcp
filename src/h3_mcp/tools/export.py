@@ -1,18 +1,46 @@
 from __future__ import annotations
 
-from ..h3_ops import cell_to_boundary
-from ..models.schemas import H3CellsToGeojsonInput, H3CellsToGeojsonOutput
+from ..h3_ops import cell_area_km2, cell_to_boundary, cell_to_latlng
+from ..models.schemas import H3CellsToGeojsonInput, H3CellsToGeojsonOutput, LatLng
 from ..output_controls import apply_sampling
 from .cellsets import resolve_cellset
 
 
 def h3_cells_to_geojson(payload: H3CellsToGeojsonInput) -> H3CellsToGeojsonOutput:
     cells = resolve_cellset(payload.cellset)
+    if payload.return_mode == "cells":
+        return H3CellsToGeojsonOutput(
+            feature_count=len(cells),
+            cells=cells,
+            features=None,
+            summary=f"{len(cells)} cell IDs returned.",
+        )
+
     if payload.return_mode == "summary":
+        center = None
+        bounding_box = None
+        total_area_km2 = None
+        summary = f"Generated {len(cells)} hexagonal polygons."
+
+        if cells:
+            centers = [cell_to_latlng(c) for c in cells]
+            lats = [lat for lat, _ in centers]
+            lngs = [lng for _, lng in centers]
+            center = LatLng(lat=sum(lats) / len(lats), lng=sum(lngs) / len(lngs))
+            bounding_box = [min(lngs), min(lats), max(lngs), max(lats)]
+            total_area_km2 = round(cell_area_km2(cells[0]) * len(cells), 2)
+            summary = (
+                f"Generated {len(cells)} hexagonal polygons covering "
+                f"~{total_area_km2} km², centered on ({center.lat:.4f}, {center.lng:.4f})."
+            )
+
         return H3CellsToGeojsonOutput(
             feature_count=len(cells),
             features=None,
-            summary=f"Generated {len(cells)} hexagonal polygons.",
+            center=center,
+            bounding_box=bounding_box,
+            total_area_km2=total_area_km2,
+            summary=summary,
         )
 
     features = []
