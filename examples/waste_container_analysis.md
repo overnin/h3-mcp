@@ -1,5 +1,10 @@
 # Waste Container Analysis (Synthetic)
 
+> **See also:** This coverage-gap pattern is generalized in three vertical skills:
+> - [`skills/verticals/waste-management/SKILL.md`](../skills/verticals/waste-management/SKILL.md) — Recipe 1 (Collection Coverage Gap Detection) — the direct generalization of this example
+> - [`skills/verticals/ev-infrastructure/SKILL.md`](../skills/verticals/ev-infrastructure/SKILL.md) — Recipe 1 (Charging Desert Detection)
+> - [`skills/verticals/telecom-coverage/SKILL.md`](../skills/verticals/telecom-coverage/SKILL.md) — Recipe 1 (Dead Zone Detection)
+
 This walkthrough demonstrates Scenario 1 from the implementation plan with synthetic data.
 
 ## Goal

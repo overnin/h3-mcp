@@ -11,11 +11,20 @@ python3.14 -m venv .venv
 . .venv/bin/activate
 pip install -r requirements.txt -r requirements-dev.txt
 ```
-2. Start the server in development mode:
+2. Copy and configure environment:
+```bash
+cp .env.example .env
+# Edit .env to set port, transport, and optional API key
+```
+3. Start the server:
+```bash
+python src/h3_mcp/server.py
+```
+Or in development mode (stdio):
 ```bash
 mcp dev src/h3_mcp/server.py
 ```
-3. Run tests:
+4. Run tests:
 ```bash
 pytest -q
 ```
@@ -35,7 +44,8 @@ The LLM orchestrates tool calls and reasons on summaries. Raw cell arrays are op
 | `h3_change_resolution` | Move up/down H3 hierarchy | `summary`, `stats`, `cells` |
 | `h3_compare_sets` | Pairwise overlap metrics | summary + optional cells |
 | `h3_compare_many` | N-way comparison | `summary`, `stats` |
-| `h3_cells_to_geojson` | Convert cells to polygons | `summary`, `geojson` |
+| `h3_cells_to_geojson` | Convert cells to polygons | `summary`, `geojson`, `cells` |
+| `h3_connected_components` | Split cellset into contiguous clusters | components list |
 | `h3_cell_stats` | Cell metadata and contiguity | summary |
 | `h3_aggregate` | Roll up numeric attributes | `summary`, `stats`, `items` |
 | `h3_find_hotspots` | Neighborhood z-score outliers | `summary`, `stats`, `items` |
@@ -50,6 +60,30 @@ The LLM orchestrates tool calls and reasons on summaries. Raw cell arrays are op
 - Use batch GeoJSON ingestion (`h3_geo_to_cells`) instead of single lat/lng prompts.
 - Pass `cellset_id` handles between tools to avoid large token payloads.
 - Default to `return_mode="summary"` and only request raw arrays when necessary.
+
+## Configuration
+
+The server reads settings from a `.env` file (see `.env.example`):
+
+| Variable | Default | Description |
+|---|---|---|
+| `H3_MCP_TRANSPORT` | `streamable-http` | Transport: `stdio`, `sse`, or `streamable-http` |
+| `H3_MCP_HOST` | `127.0.0.1` | Listen address |
+| `H3_MCP_PORT` | `8000` | Listen port |
+| `H3_MCP_API_KEY` | *(empty)* | Optional bearer token auth (omit to disable) |
+
+## Skills
+
+The `skills/` directory contains orchestration guides that teach LLM agents how to chain H3 MCP tools. The **base skill** covers tool mechanics, token-safe defaults, and output interpretation. **Vertical skills** add domain-specific vocabulary, resolution defaults, analytical recipes, and interpretation guides.
+
+| Skill | Description |
+|---|---|
+| `skills/h3-mcp/SKILL.md` | Base skill — tool reference, token-safe defaults, resolution guidance, output interpretation |
+| `skills/verticals/ev-infrastructure/SKILL.md` | EV charging deserts, grid-solar mismatch, demand hotspots, charger-substation proximity |
+| `skills/verticals/telecom-coverage/SKILL.md` | Dead-zone detection, multi-operator comparison, signal hotspots, tower siting |
+| `skills/verticals/waste-management/SKILL.md` | Collection coverage gaps, overflow hotspots, illegal dumping, facility proximity, service equity |
+
+Add new verticals to `skills/verticals/<domain>/SKILL.md` using the template in the base skill.
 
 ## Examples
 - `examples/waste_container_analysis.md`

@@ -1,5 +1,7 @@
 # Solar vs Grid Stress (Synthetic)
 
+> **See also:** [`skills/verticals/ev-infrastructure/SKILL.md`](../skills/verticals/ev-infrastructure/SKILL.md) — Recipe 2 (Grid Stress vs Solar Capacity Mismatch) generalizes this pattern with resolution defaults and interpretation thresholds.
+
 This walkthrough demonstrates Scenario 2 from the implementation plan with synthetic points.
 
 ## Goal
