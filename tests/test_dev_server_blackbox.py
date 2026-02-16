@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import pytest
 from mcp.client.session import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
 
 def _load_fixture(name: str) -> dict:
-    root = Path(__file__).resolve().parents[1]
-    fixture_path = root / "tests" / "fixtures" / name
+    fixture_path = _PROJECT_ROOT / "tests" / "fixtures" / name
     return json.loads(fixture_path.read_text())
 
 
@@ -20,17 +22,22 @@ def _require_structured(result):
     return result.structuredContent
 
 
+def _server_params() -> StdioServerParameters:
+    mcp_bin = shutil.which("mcp")
+    assert mcp_bin is not None, "mcp CLI not found on PATH; activate your venv or install mcp[cli]"
+    return StdioServerParameters(
+        command=mcp_bin,
+        args=["run", "src/h3_mcp/server.py:mcp", "--transport", "stdio"],
+        cwd=str(_PROJECT_ROOT),
+    )
+
+
 @pytest.mark.anyio
 async def test_dev_server_coverage_flow():
     boundary_geojson = _load_fixture("amsterdam_boundary.geojson")
     points_geojson = _load_fixture("sample_points.geojson")
 
-    root = Path(__file__).resolve().parents[1]
-    server_params = StdioServerParameters(
-        command=str(root / ".venv" / "bin" / "mcp"),
-        args=["run", "src/h3_mcp/server.py:mcp", "--transport", "stdio"],
-        cwd=str(root),
-    )
+    server_params = _server_params()
 
     async with stdio_client(server_params) as streams:
         async with ClientSession(*streams) as session:
@@ -79,12 +86,7 @@ async def test_dev_server_coverage_flow():
 async def test_dev_server_geojson_roundtrip():
     points_geojson = _load_fixture("sample_points.geojson")
 
-    root = Path(__file__).resolve().parents[1]
-    server_params = StdioServerParameters(
-        command=str(root / ".venv" / "bin" / "mcp"),
-        args=["run", "src/h3_mcp/server.py:mcp", "--transport", "stdio"],
-        cwd=str(root),
-    )
+    server_params = _server_params()
 
     async with stdio_client(server_params) as streams:
         async with ClientSession(*streams) as session:

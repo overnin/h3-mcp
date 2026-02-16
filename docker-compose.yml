@@ -1,0 +1,15 @@
+services:
+  h3-mcp:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - H3_MCP_TRANSPORT=streamable-http
+      - H3_MCP_HOST=0.0.0.0
+      - H3_MCP_PORT=8000
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s=socket.create_connection(('localhost',8000),2); s.close()"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

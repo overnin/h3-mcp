@@ -62,6 +62,7 @@ GeoJSON/coords → Tool Layer → summaries + cellset handles → LLM reasoning
 - Test fixtures: `tests/fixtures/amsterdam_boundary.geojson`, `tests/fixtures/sample_points.geojson`.
 - Integration tests (`test_integration_scenario*.py`) exercise multi-tool chains.
 - `test_dev_server_blackbox.py` tests the MCP protocol via async client.
+- **All tests must pass inside `docker compose run --rm h3-mcp pytest -q`.** Never hardcode local paths like `.venv/bin/` — use `shutil.which()` or `PATH`-based resolution so tests work in both local venvs and Docker containers. This is required for CI/CD portability.
 
 ## Code Style
 
